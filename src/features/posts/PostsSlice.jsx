@@ -1,34 +1,23 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 import { sub } from "date-fns";
 
-const initialState = [
-  {
-    id: 1,
-    title: "Learning Redux Toolkit from scratch",
-    content: "I've heard good things",
-    date: sub(new Date(), { minutes: 10 }).toISOString(),
-    reactions: {
-      thumbsUp: 0,
-      wow: 0,
-      heart: 0,
-      rocket: 0,
-      coffee: 0,
-    },
-  },
-  {
-    id: 2,
-    title: "Work on a project with redux toolkit",
-    content: "Goal for this week",
-    date: sub(new Date(), { minutes: 5 }).toISOString(),
-    reactions: {
-      thumbsUp: 0,
-      wow: 0,
-      heart: 0,
-      rocket: 0,
-      coffee: 0,
-    },
-  },
-];
+const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
+
+const initialState = {
+  posts: [],
+  status: "idle", // "idle", "loading", "succeeded", "failed"
+  error: null,
+};
+
+export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
+  try {
+    const response = await axios.get(POSTS_URL);
+    return response.data; // Return data directly
+  } catch (error) {
+    throw new Error(error.message); // Ensure error is caught in the reducer
+  }
+});
 
 const postsSlice = createSlice({
   name: "posts",
@@ -36,7 +25,7 @@ const postsSlice = createSlice({
   reducers: {
     postAdded: {
       reducer(state, action) {
-        state.push(action.payload);
+        state.posts.push(action.payload);
       },
       prepare(title, content, userId) {
         return {
@@ -59,21 +48,46 @@ const postsSlice = createSlice({
     },
     reactionAdded(state, action) {
       const { postId, reaction } = action.payload;
-      const existingPost = state.find((post) => post.id === Number(postId));
-      
-
+      const existingPost = state.posts.find(post => post.id === postId);
       if (existingPost) {
         existingPost.reactions[reaction]++;
       }
     },
   },
+  extraReducers: builder => {
+    builder
+      .addCase(fetchPosts.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPosts.fulfilled, (state, action) => {
+        state.status = "succeeded"; // Set status to succeeded
+        const loadedPosts = action.payload.map((post, index) => ({
+          id: post.id,
+          title: post.title,
+          content: post.body,
+          date: sub(new Date(), { minutes: index + 1 }).toISOString(),
+          reactions: {
+            thumbsUp: 0,
+            hooray: 0,
+            heart: 0,
+            rocket: 0,
+            eyes: 0,
+          },
+        }));
+        state.posts = loadedPosts; // Update state
+      })
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      });
+  },
 });
 
-//we import this into the Postslist and use useSelector(selectAllPosts) and map it... this contains all our data
-export const selectAllPosts = (state) => state.posts;
+// Export selectors and actions
+export const selectAllPosts = (state) => state.posts.posts;
+export const getPostsStatus = (state) => state.posts.status;
+export const getPostsError = (state) => state.posts.error;
 
-//Action taken which is Add post to the array of objects
 export const { postAdded, reactionAdded } = postsSlice.actions;
 
-//Since its default we can use any name to import it into the store "postsReducer"
 export default postsSlice.reducer;

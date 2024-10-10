@@ -1,30 +1,39 @@
-import { useSelector } from "react-redux";
-import { selectAllPosts } from "./PostsSlice";
-import PostAuthor from "../users/usersList";
-import TimeAgo from "./TimeAgo";
-import ReactionButton from "./ReactionButton";
+
+import { useSelector, useDispatch } from "react-redux";
+import { selectAllPosts, getPostsStatus, fetchPosts } from "./PostsSlice";
+import { useEffect } from "react";
+import PostsExcerpt from "./PostsExcerpt";
 
 const PostList = () => {
-    const posts = useSelector(selectAllPosts)
+  const dispatch = useDispatch();
+  const posts = useSelector(selectAllPosts);
+  const postsStatus = useSelector(getPostsStatus);
+  
 
-    const orderedPost = posts.slice().sort((a,b) => b.date.localeCompare(a.date))
-    
-    const renderPosts = orderedPost.map((post)=>(
-      
-      
-        <article key={post.id} className="border-[2px] border-[#ddd5d5] bg-[#494747] text-white w-[100%] p-[20px] rounded-lg mb-[10px]">
-            <h3 className="font-[700] text-[20px]">{post.title}</h3>
-            <p>{post.content.substring(0,100)}</p>
-            <p><PostAuthor userId={post.userId}/> <TimeAgo timestamp={post.date}/></p>
-             <div><ReactionButton post={post}/></div>
-        </article>
-    ))
-  return (
-    <section className="px-[30px] py-[20px]">
-        <h2 className="text-white font-[700] text-[30px]">POSTS</h2>
-        {renderPosts}
-    </section>
-  )
-}
+  useEffect(() => {
+    if (postsStatus === "idle") {
+      dispatch(fetchPosts());
+    }
+  }, [postsStatus, dispatch]);
 
-export default PostList
+  if (postsStatus === "loading") {
+    return <p>Loading...</p>;
+  } else if (postsStatus === "succeeded") {
+    return (
+      <section>
+        <h2>Posts</h2>
+        {posts.length > 0 ? (
+          posts.map((post) => <PostsExcerpt key={post.id} post={post} />)
+        ) : (
+          <p>No posts available.</p>
+        )}
+      </section>
+    );
+  } else if (postsStatus === "failed") {
+    return <p>Error fetching posts.</p>;
+  }
+
+  return null; // Return null if none of the conditions are met
+};
+
+export default PostList;
