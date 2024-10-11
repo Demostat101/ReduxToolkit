@@ -34,6 +34,9 @@ const AddFormPosts = () => {
         
     ))
 
+    
+    
+
   return (
     <section className='text-white px-[30px] py-[20px]'>
       <h2 className='font-[700] text-[30px]'>Add a new Post</h2>

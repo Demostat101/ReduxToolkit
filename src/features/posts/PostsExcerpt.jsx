@@ -2,7 +2,10 @@ import PostAuthor from "../users/usersList";
 import TimeAgo from "./TimeAgo";
 import ReactionButton from "./ReactionButton";
 
+
 const PostsExcerpt = ({ post }) => {
+  
+  
   return (
     <article
       

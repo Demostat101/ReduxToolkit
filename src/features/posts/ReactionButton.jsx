@@ -10,7 +10,7 @@ const reactionEmoji = {
   hooray: "😊",
   heart: "❤",
   rocket: "🚀",
-  eyes: "☕",
+  coffee: "☕",
 };
 
 
