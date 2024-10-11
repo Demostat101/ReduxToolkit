@@ -26,7 +26,7 @@ const PostList = () => {
     const reversedPosts = [...posts].reverse(); // Reverse for display
     return (
       <section className="px-[30px] py-[20px] text-white">
-        <h2 className="font-[700] text-[30px]">Posts</h2>
+        <h2 className="font-[700] text-[30px] animate-bounce">Posts</h2>
         {reversedPosts.length > 0 ? (
           reversedPosts.map((post) => <PostsExcerpt key={post.id} post={post} />)
         ) : (
