@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { postAdded } from './posts/PostsSlice';
 import { selectAllUsers } from './users/usersSlice';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AddFormPosts = () => {
     const [title,setTitle] = useState('');
@@ -22,6 +23,7 @@ const AddFormPosts = () => {
             )
             setTitle("")
             setContent("")
+          
         }
     }
 

@@ -88,10 +88,18 @@ export const selectAllPosts = (state) => state.posts.posts;
 export const getPostsStatus = (state) => state.posts.status;
 export const getPostsError = (state) => state.posts.error;
 
+
+// To select a particular post by id
 export const selectPostById = (state, postId) => {
-  state.posts.posts.find(post => post.id === postId)
+ 
+  return state.posts.posts.find(post => post.id === postId)
+  
+  
 }
 
+
+
+// All actions to be done at d click of a button
 export const { postAdded, reactionAdded } = postsSlice.actions;
 
 export default postsSlice.reducer;
